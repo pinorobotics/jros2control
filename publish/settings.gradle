@@ -1,0 +1,3 @@
+// list of subprojects to publish to Sonatype repo
+
+include "${zzName}"
