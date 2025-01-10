@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.jros2control;
+package pinorobotics.jros2control.joint_trajectory_controller;
 
 import id.jros2messages.trajectory_msgs.JointTrajectoryMessage;
 import id.jrosclient.JRosClient;
@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.Flow.Subscription;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import pinorobotics.jros2control.JointStateListener.JointState;
+import pinorobotics.jros2control.joint_trajectory_controller.JointStateListener.JointState;
 
 /**
  * Joint Trajectory Controller

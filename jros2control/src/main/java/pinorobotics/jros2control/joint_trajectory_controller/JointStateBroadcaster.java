@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.jros2control;
+package pinorobotics.jros2control.joint_trajectory_controller;
 
 import id.jros2messages.sensor_msgs.JointStateMessage;
 import id.jros2messages.std_msgs.HeaderMessage;
