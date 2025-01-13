@@ -55,7 +55,7 @@ import java.util.stream.DoubleStream;
  *     controllers</a>
  * @author lambdaprime intid@protonmail.com
  */
-public class JointStateBroadcaster extends IdempotentService implements JointStateListener {
+public class JointStateBroadcaster extends IdempotentService implements ActuatorHardware {
     private static final XLogger LOGGER = XLogger.getLogger(JointStateBroadcaster.class);
     private ScheduledExecutorService scheduledExecutor =
             Executors.newSingleThreadScheduledExecutor();
@@ -78,7 +78,7 @@ public class JointStateBroadcaster extends IdempotentService implements JointSta
         this.client = client;
         this.rate = rate;
         int numOfJoints = joints.size();
-        state = new JointState(new double[numOfJoints], new double[numOfJoints]);
+        state = new JointState(joints, new double[numOfJoints], new double[numOfJoints]);
         jointStateMessage =
                 new JointStateMessage()
                         .withHeader(new HeaderMessage().withStamp(Time.now()))

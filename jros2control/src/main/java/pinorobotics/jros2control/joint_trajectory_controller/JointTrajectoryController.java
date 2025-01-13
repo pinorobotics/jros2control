@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.Flow.Subscription;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import pinorobotics.jros2control.joint_trajectory_controller.JointStateListener.JointState;
+import pinorobotics.jros2control.joint_trajectory_controller.ActuatorHardware.JointState;
 
 /**
  * Joint Trajectory Controller
@@ -56,7 +56,7 @@ public class JointTrajectoryController extends IdempotentService {
     private List<Double> initialPositions;
     private String jointTrajectoryTopic;
     private JRosClient client;
-    private List<JointStateListener> jointStateListener;
+    private List<ActuatorHardware> actuatorHardwareList;
     private Map<String, Integer> jointsMap;
 
     /**
@@ -68,7 +68,7 @@ public class JointTrajectoryController extends IdempotentService {
      */
     public JointTrajectoryController(
             JRosClient client,
-            List<JointStateListener> jointStateListener,
+            List<ActuatorHardware> actuatorHardwareList,
             List<String> joints,
             List<Double> initialPositions,
             String jointTrajectoryTopic) {
@@ -77,7 +77,7 @@ public class JointTrajectoryController extends IdempotentService {
                 initialPositions.size(),
                 "mismatch between joints and number of positions");
         this.client = client;
-        this.jointStateListener = jointStateListener;
+        this.actuatorHardwareList = actuatorHardwareList;
         this.joints = joints;
         this.initialPositions = initialPositions;
         this.jointTrajectoryTopic = jointTrajectoryTopic;
@@ -120,10 +120,10 @@ public class JointTrajectoryController extends IdempotentService {
     }
 
     private void updatePositions(double[] positions) {
-        jointStateListener.forEach(
+        actuatorHardwareList.forEach(
                 listener -> {
                     try {
-                        listener.update(new JointState(positions, new double[0]));
+                        listener.update(new JointState(joints, positions, new double[0]));
                     } catch (Exception e) {
                         LOGGER.severe(e);
                     }
