@@ -29,6 +29,7 @@ public class JointTrajectoryControllerImpl extends IdempotentService
         implements JointTrajectoryController {
 
     private JointTrajectorySubscriber subscriber;
+    private FollowJointTrajectoryActionServer actionServer;
 
     public JointTrajectoryControllerImpl(
             JRos2Client client,
@@ -43,15 +44,20 @@ public class JointTrajectoryControllerImpl extends IdempotentService
         this.subscriber =
                 new JointTrajectorySubscriber(
                         client, joints, actuatorHardwareList, initialPositions, controllerName);
+        this.actionServer =
+                new FollowJointTrajectoryActionServer(
+                        client, joints, actuatorHardwareList, controllerName);
     }
 
     @Override
     protected void onStart() {
         subscriber.start();
+        actionServer.start();
     }
 
     @Override
     protected void onClose() {
+        actionServer.close();
         subscriber.close();
     }
 }

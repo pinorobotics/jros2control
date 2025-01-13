@@ -22,16 +22,14 @@ import id.jrosclient.JRosClient;
 import id.jrosclient.TopicSubscriber;
 import id.jroscommon.RosName;
 import id.jrosmessages.MessageDescriptor;
+import id.jrosmessages.std_msgs.StringMessage;
+import id.jrosmessages.trajectory_msgs.JointTrajectoryPointMessage;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IdempotentService;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Flow.Subscription;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import pinorobotics.jros2control.joint_trajectory_controller.ActuatorHardware;
-import pinorobotics.jros2control.joint_trajectory_controller.ActuatorHardware.JointState;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -39,12 +37,11 @@ import pinorobotics.jros2control.joint_trajectory_controller.ActuatorHardware.Jo
 public class JointTrajectorySubscriber extends IdempotentService {
     private static final XLogger LOGGER = XLogger.getLogger(JointTrajectorySubscriber.class);
     private Optional<TopicSubscriber<JointTrajectoryMessage>> subscriber = Optional.empty();
-    private List<String> joints;
-    private List<Double> initialPositions;
     private JRosClient client;
-    private List<ActuatorHardware> actuatorHardwareList;
-    private Map<String, Integer> jointsMap;
+    private List<Double> initialPositions;
     private RosName controllerName;
+    private JointTrajectoryProcessor trajectoryProcessor;
+    private List<String> joints;
 
     public JointTrajectorySubscriber(
             JRosClient client,
@@ -53,34 +50,32 @@ public class JointTrajectorySubscriber extends IdempotentService {
             List<Double> initialPositions,
             RosName controllerName) {
         this.client = client;
-        this.actuatorHardwareList = actuatorHardwareList;
         this.joints = joints;
         this.initialPositions = initialPositions;
         this.controllerName = controllerName;
-        this.jointsMap =
-                IntStream.range(0, joints.size())
-                        .boxed()
-                        .collect(Collectors.toMap(i -> joints.get(i), i -> i));
+        this.trajectoryProcessor = new JointTrajectoryProcessor(joints, actuatorHardwareList);
     }
 
     @Override
     protected void onStart() {
+        LOGGER.fine("Start joint trajectory controller {0}", controllerName);
         var positions = initialPositions.stream().mapToDouble(j -> j).toArray();
-        updatePositions(positions);
+        trajectoryProcessor.process(
+                new JointTrajectoryMessage()
+                        .withPoints(new JointTrajectoryPointMessage().withPositions(positions))
+                        .withJointNames(
+                                joints.stream()
+                                        .map(StringMessage::new)
+                                        .toArray(i -> new StringMessage[i])));
         var subscriber =
                 new TopicSubscriber<>(
-                        new MessageDescriptor<>(JointTrajectoryMessage.class), controllerName) {
+                        new MessageDescriptor<>(JointTrajectoryMessage.class),
+                        controllerName.add("joint_trajectory")) {
                     @Override
                     public void onNext(JointTrajectoryMessage item) {
                         super.onNext(item);
                         LOGGER.info("Received new trajectory {0}", item);
-                        for (var p : item.points) {
-                            for (int i = 0; i < p.positions.length; i++) {
-                                if (!Double.isFinite(p.positions[i])) continue;
-                                positions[jointsMap.get(item.joint_names[i].data)] = p.positions[i];
-                            }
-                        }
-                        updatePositions(positions);
+                        trajectoryProcessor.process(item);
                         // request next message
                         getSubscription().get().request(1);
                     }
@@ -95,16 +90,5 @@ public class JointTrajectorySubscriber extends IdempotentService {
     protected void onClose() {
         LOGGER.fine("Stop joint trajectory controller {0}", controllerName);
         subscriber.flatMap(TopicSubscriber::getSubscription).ifPresent(Subscription::cancel);
-    }
-
-    private void updatePositions(double[] positions) {
-        actuatorHardwareList.forEach(
-                listener -> {
-                    try {
-                        listener.update(new JointState(joints, positions, new double[0]));
-                    } catch (Exception e) {
-                        LOGGER.severe(e);
-                    }
-                });
     }
 }
