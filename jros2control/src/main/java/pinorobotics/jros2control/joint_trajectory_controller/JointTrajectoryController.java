@@ -18,6 +18,10 @@
 package pinorobotics.jros2control.joint_trajectory_controller;
 
 /**
+ * <b>jros2control</b> version of joint_trajectory_controller
+ *
+ * @see JointTrajectoryControllerFactory Different implementations of {@link
+ *     JointTrajectoryController}
  * @author lambdaprime intid@protonmail.com
  */
 public interface JointTrajectoryController extends AutoCloseable {

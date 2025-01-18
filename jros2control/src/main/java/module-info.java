@@ -1,10 +1,14 @@
 /**
  * Java module with ROS2 controllers (Robot Operating System).
  *
- * <p>See {@link pinorobotics.jros2control.joint_trajectory_controller.JointTrajectorySubscriber}
- * for usage information on creating ROS Joint Trajectory Controller nodes.
+ * <p>Supported controllers:
  *
- * @author lambdaprime intid@protonmail.com
+ * <ul>
+ *   <li>joint_trajectory_controller (see {@link
+ *       pinorobotics.jros2control.joint_trajectory_controller.JointTrajectoryControllerFactory})
+ * </ul>
+ *
+ * @author lambdaprime intid@protonmail
  */
 module jros2control {
     requires transitive jros2client;

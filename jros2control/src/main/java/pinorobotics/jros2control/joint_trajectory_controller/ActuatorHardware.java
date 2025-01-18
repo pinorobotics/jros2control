@@ -49,7 +49,7 @@ public interface ActuatorHardware {
         public double[] positions() {
             return positions;
         }
-        
+
         @Override
         public String toString() {
             return XJson.asString(
