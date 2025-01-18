@@ -17,6 +17,7 @@
  */
 package pinorobotics.jros2control.joint_trajectory_controller;
 
+import id.xfunction.XJson;
 import java.util.List;
 
 /**
@@ -47,6 +48,14 @@ public interface ActuatorHardware {
          */
         public double[] positions() {
             return positions;
+        }
+        
+        @Override
+        public String toString() {
+            return XJson.asString(
+                    "joints", joints,
+                    "positions", positions,
+                    "velocities", velocities);
         }
     }
 

@@ -19,8 +19,10 @@ package pinorobotics.jros2control.joint_trajectory_controller.impl;
 
 import id.jros2messages.trajectory_msgs.JointTrajectoryMessage;
 import id.xfunction.logging.XLogger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import pinorobotics.jros2control.joint_trajectory_controller.ActuatorHardware;
@@ -59,8 +61,10 @@ public class JointTrajectoryProcessor {
                 }
                 cachedPositions[jointId] = p.positions[i];
             }
+            updatePositions(cachedPositions);
         }
-        updatePositions(cachedPositions);
+        if (LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Final position: {0}", Arrays.toString(cachedPositions));
     }
 
     private void updatePositions(double[] positions) {

@@ -14,6 +14,7 @@ module jros2control {
     requires id.xfunction;
     requires jros2actionlib;
     requires jrosservices;
+    requires java.logging;
 
     exports pinorobotics.jros2control.joint_trajectory_controller;
     exports pinorobotics.jros2control.control_msgs to
