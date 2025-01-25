@@ -97,7 +97,7 @@ public class JointStateBroadcaster extends IdempotentService implements Actuator
 
     @Override
     protected void onStart() {
-        LOGGER.info("Starting");
+        LOGGER.fine("Start joint states broadcaster");
         var publisher = new TopicSubmissionPublisher<>(JointStateMessage.class, "joint_states");
         // register a new publisher for a new topic with ROS
         client.publish(publisher);

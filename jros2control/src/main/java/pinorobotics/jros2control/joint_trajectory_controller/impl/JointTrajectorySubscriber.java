@@ -74,10 +74,13 @@ public class JointTrajectorySubscriber extends IdempotentService {
                     @Override
                     public void onNext(JointTrajectoryMessage item) {
                         super.onNext(item);
-                        LOGGER.info("Received new trajectory {0}", item);
-                        trajectoryProcessor.process(item);
-                        // request next message
-                        getSubscription().get().request(1);
+                        LOGGER.fine("Received new trajectory {0}", item);
+                        try {
+                            trajectoryProcessor.process(item);
+                        } finally {
+                            // request next message
+                            getSubscription().get().request(1);
+                        }
                     }
                 };
         // register a new subscriber with default QOS policies
